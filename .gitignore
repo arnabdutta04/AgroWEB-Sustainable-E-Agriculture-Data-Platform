@@ -1,0 +1,9 @@
+backend/models/market_price_model.pkl
+backend/models/fertilizer_price_model.pkl
+
+backend/venv/
+__pycache__/
+*.pyc
+
+backend/datasets/
+node_modules/

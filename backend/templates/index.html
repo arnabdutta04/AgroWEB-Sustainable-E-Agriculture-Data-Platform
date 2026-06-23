@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KrishiMind — AI Smart Agriculture Advisory</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       NAVIGATION
+  ══════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-seedling"></i>
+        </div>
+        <span class="brand-text">Krishi<em>Mind</em></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#hero" class="nav-link active">Home</a></li>
+        <li><a href="#predict-section" class="nav-link">Predict</a></li>
+        <li><a href="#market-section" class="nav-link">Market</a></li>
+        <li><a href="#workflow-section" class="nav-link">Workflow</a></li>
+      </ul>
+      <div class="nav-badge">
+        <span class="pulse-dot"></span>
+        <span>AI Models Live</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#hero" class="mob-link">Home</a>
+    <a href="#predict-section" class="mob-link">Predict</a>
+    <a href="#market-section" class="mob-link">Market</a>
+    <a href="#workflow-section" class="mob-link">Workflow</a>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       HERO SECTION
+  ══════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <!-- Animated background canvas -->
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
+
+    <!-- Grain overlay -->
+    <div class="grain-overlay"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fa-solid fa-microchip"></i>
+        AI-Powered Precision Farming
+      </div>
+
+      <h1 class="hero-title">
+        Grow Smarter.<br />
+        <span class="title-accent">Farm Wiser.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Feed your soil parameters into our ensemble of ML models and receive
+        real-time crop recommendations, yield forecasts, fertilizer costs
+        and live market pricing — all in one intelligent dashboard.
+      </p>
+
+      <div class="hero-cta">
+        <a href="#predict-section" class="btn btn-primary">
+          <i class="fa-solid fa-flask"></i>
+          Run Prediction
+        </a>
+        <a href="#workflow-section" class="btn btn-ghost">
+          <i class="fa-solid fa-diagram-project"></i>
+          View Architecture
+        </a>
+      </div>
+
+      <!-- Hero stats strip -->
+      <div class="hero-stats">
+        <div class="stat-pill">
+          <i class="fa-solid fa-robot"></i>
+          <div>
+            <span class="stat-num">5</span>
+            <span class="stat-label">ML Models</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <span class="stat-num">269</span>
+            <span class="stat-label">Districts</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <i class="fa-solid fa-store"></i>
+          <div>
+            <span class="stat-num">1386</span>
+            <span class="stat-label">Markets</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <i class="fa-solid fa-wheat-awn"></i>
+          <div>
+            <span class="stat-num">23</span>
+            <span class="stat-label">Commodities</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       PREDICTION FORM SECTION
+  ══════════════════════════════════════════ -->
+  <section class="section predict-section" id="predict-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-tag">
+          <i class="fa-solid fa-vials"></i> Soil Analysis Engine
+        </div>
+        <h2 class="section-title">Crop &amp; Yield Prediction</h2>
+        <p class="section-sub">
+          Enter your soil nutrient values and environmental conditions.
+          Our ensemble models will analyse and return personalised recommendations.
+        </p>
+      </div>
+
+      <!-- Prediction Form Card -->
+      <div class="form-card" id="predictFormCard">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <div>
+            <h3>Soil &amp; Weather Parameters</h3>
+            <p>Fill all fields — values feed directly into ML models</p>
+          </div>
+        </div>
+
+        <form id="predictForm" novalidate>
+
+          <!-- Row 1: Farmer Info (visual only, not sent to backend) -->
+          <div class="form-section-label">
+            <i class="fa-solid fa-user-tie"></i> Farm Identity
+            <span class="form-hint">(contextual — not sent to ML models)</span>
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="form-group">
+              <label class="form-label" for="state">State</label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-map"></i>
+                <input type="text" id="state" name="state" class="form-input"
+                       placeholder="e.g. West Bengal" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="farmer_district">District</label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-location-dot"></i>
+                <input type="text" id="farmer_district" name="farmer_district"
+                       class="form-input" placeholder="e.g. Bankura" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="soil_type">Soil Type</label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-hill"></i>
+                <select id="soil_type" name="soil_type" class="form-input form-select">
+                  <option value="">Select soil type</option>
+                  <option>Alluvial</option>
+                  <option>Black (Regur)</option>
+                  <option>Red &amp; Yellow</option>
+                  <option>Laterite</option>
+                  <option>Arid / Desert</option>
+                  <option>Saline / Alkaline</option>
+                  <option>Peaty / Marshy</option>
+                  <option>Forest / Mountain</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Soil Nutrients (sent to backend) -->
+          <div class="form-section-label" style="margin-top:2rem;">
+            <i class="fa-solid fa-flask-vial"></i> Soil Nutrients
+            <span class="form-hint">(kg/ha — sent to all ML models)</span>
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="form-group">
+              <label class="form-label" for="N">
+                Nitrogen (N)
+                <span class="range-tag">0–300 kg/ha</span>
+              </label>
+              <div class="input-wrap nutrient-n">
+                <i class="fa-solid fa-atom"></i>
+                <input type="number" id="N" name="N" class="form-input"
+                       placeholder="e.g. 90" min="0" max="300" step="0.1" required />
+              </div>
+              <div class="nutrient-bar"><div class="nutrient-fill" id="nBar"></div></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="P">
+                Phosphorus (P)
+                <span class="range-tag">0–300 kg/ha</span>
+              </label>
+              <div class="input-wrap nutrient-p">
+                <i class="fa-solid fa-circle-nodes"></i>
+                <input type="number" id="P" name="P" class="form-input"
+                       placeholder="e.g. 42" min="0" max="300" step="0.1" required />
+              </div>
+              <div class="nutrient-bar"><div class="nutrient-fill" id="pBar"></div></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="K">
+                Potassium (K)
+                <span class="range-tag">0–300 kg/ha</span>
+              </label>
+              <div class="input-wrap nutrient-k">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+                <input type="number" id="K" name="K" class="form-input"
+                       placeholder="e.g. 43" min="0" max="300" step="0.1" required />
+              </div>
+              <div class="nutrient-bar"><div class="nutrient-fill" id="kBar"></div></div>
+            </div>
+          </div>
+
+          <!-- Row 3: Environmental Conditions (sent to backend) -->
+          <div class="form-section-label" style="margin-top:2rem;">
+            <i class="fa-solid fa-cloud-sun"></i> Environmental Conditions
+            <span class="form-hint">(sent to crop &amp; yield models)</span>
+          </div>
+          <div class="form-grid form-grid-4">
+            <div class="form-group">
+              <label class="form-label" for="temperature">
+                Temperature
+                <span class="range-tag">-10 to 60 °C</span>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-temperature-half"></i>
+                <input type="number" id="temperature" name="temperature" class="form-input"
+                       placeholder="e.g. 28.5" min="-10" max="60" step="0.1" required />
+                <span class="input-unit">°C</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="humidity">
+                Humidity
+                <span class="range-tag">0–100 %</span>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-droplet"></i>
+                <input type="number" id="humidity" name="humidity" class="form-input"
+                       placeholder="e.g. 82.0" min="0" max="100" step="0.1" required />
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ph">
+                Soil pH
+                <span class="range-tag">0–14</span>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-vial"></i>
+                <input type="number" id="ph" name="ph" class="form-input"
+                       placeholder="e.g. 6.5" min="0" max="14" step="0.01" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="rainfall">
+                Rainfall
+                <span class="range-tag">0–5000 mm</span>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-cloud-rain"></i>
+                <input type="number" id="rainfall" name="rainfall" class="form-input"
+                       placeholder="e.g. 202.9" min="0" max="5000" step="0.1" required />
+                <span class="input-unit">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="form-footer">
+            <div class="model-pills">
+              <span class="model-pill"><i class="fa-solid fa-seedling"></i> Crop Rec.</span>
+              <span class="model-pill"><i class="fa-solid fa-chart-line"></i> Yield</span>
+              <span class="model-pill"><i class="fa-solid fa-bag-shopping"></i> Fert. Price</span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-submit" id="predictBtn">
+              <span class="btn-text">
+                <i class="fa-solid fa-brain"></i>
+                Run AI Analysis
+              </span>
+              <span class="btn-loader" hidden>
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                Analysing…
+              </span>
+            </button>
+          </div>
+
+          <!-- Validation errors -->
+          <div class="error-banner" id="predictErrors" hidden></div>
+        </form>
+      </div>
+
+
+      <!-- ── RESULTS PANEL ── -->
+      <div class="results-panel" id="resultsPanel" hidden>
+
+        <!-- Panel Header -->
+        <div class="results-header">
+          <div class="results-header-left">
+            <div class="results-icon">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div>
+              <h3>Analysis Complete</h3>
+              <p id="resultTimestamp">—</p>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="resetBtn">
+            <i class="fa-solid fa-rotate-left"></i> New Analysis
+          </button>
+        </div>
+
+        <!-- Input Echo Row -->
+        <div class="input-echo">
+          <h4><i class="fa-solid fa-input-numeric"></i> Input Parameters Used</h4>
+          <div class="echo-grid" id="inputEcho"></div>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="results-grid">
+
+          <!-- Card 1: Recommended Crop -->
+          <div class="result-card card-crop" id="cardCrop">
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-seedling"></i>
+            </div>
+            <div class="card-label">Recommended Crop</div>
+            <div class="card-value" id="rcCrop">—</div>
+            <div class="card-sub" id="rcCropSub">—</div>
+            <div class="top3-crops" id="top3Crops"></div>
+          </div>
+
+          <!-- Card 2: Estimated Yield -->
+          <div class="result-card card-yield" id="cardYield">
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div class="card-label">Predicted Yield</div>
+            <div class="card-value" id="rcYield">—</div>
+            <div class="card-sub">tonnes per hectare</div>
+            <div class="yield-bar-wrap">
+              <div class="yield-bar-bg">
+                <div class="yield-bar-fill" id="yieldBarFill"></div>
+              </div>
+              <span class="yield-bar-label" id="yieldBarLabel"></span>
+            </div>
+          </div>
+
+          <!-- Card 3: Fertilizer Cost -->
+          <div class="result-card card-fert" id="cardFert">
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+            <div class="card-label">Est. Fertilizer Cost</div>
+            <div class="card-value" id="rcFert">—</div>
+            <div class="card-sub">per 50 kg bag (INR)</div>
+            <div class="fert-advisory" id="fertAdvisory"></div>
+          </div>
+
+          <!-- Card 4: Soil Health -->
+          <div class="result-card card-soil" id="cardSoil">
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-hill"></i>
+            </div>
+            <div class="card-label">Soil Health Insight</div>
+            <div class="card-value soil-health-score" id="soilHealthScore">—</div>
+            <div class="card-sub" id="soilHealthLabel">—</div>
+            <div class="soil-meters" id="soilMeters"></div>
+          </div>
+
+        </div>
+
+        <!-- Advisory Section -->
+        <div class="advisory-section">
+          <h4 class="advisory-title"><i class="fa-solid fa-shield-halved"></i> AI Farm Advisory</h4>
+          <div class="advisory-grid">
+
+            <div class="advisory-card advisory-irrigation" id="advIrrigation">
+              <div class="adv-icon"><i class="fa-solid fa-faucet-drip"></i></div>
+              <div class="adv-title">Irrigation Advice</div>
+              <div class="adv-body" id="advIrrigationBody">—</div>
+            </div>
+
+            <div class="advisory-card advisory-pest" id="advPest">
+              <div class="adv-icon"><i class="fa-solid fa-bug"></i></div>
+              <div class="adv-title">Pest &amp; Disease Alerts</div>
+              <div class="adv-body" id="advPestBody">—</div>
+            </div>
+
+            <div class="advisory-card advisory-fertilizer" id="advFertilizer">
+              <div class="adv-icon"><i class="fa-solid fa-flask"></i></div>
+              <div class="adv-title">Fertilizer Advisory</div>
+              <div class="adv-body" id="advFertilizerBody">—</div>
+            </div>
+
+            <div class="advisory-card advisory-weather" id="advWeather">
+              <div class="adv-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
+              <div class="adv-title">Weather Forecast</div>
+              <div class="adv-body" id="advWeatherBody">—</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /results-panel -->
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       MARKET PRICE SECTION
+  ══════════════════════════════════════════ -->
+  <section class="section market-section" id="market-section">
+    <div class="container">
+
+      <div class="section-header section-header-light">
+        <div class="section-tag section-tag-gold">
+          <i class="fa-solid fa-chart-candlestick"></i> Market Intelligence
+        </div>
+        <h2 class="section-title section-title-light">Future Market Price Prediction</h2>
+        <p class="section-sub section-sub-light">
+          Select district, market and commodity to get AI-predicted future crop
+          selling prices (₹/quintal) using our market price ML model.
+        </p>
+      </div>
+
+      {% if not market_model_available %}
+      <div class="model-unavailable-banner">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <strong>market_price_model.pkl</strong> is not loaded on the server.
+        Place it in the <code>models/</code> folder and restart Flask to enable this section.
+      </div>
+      {% endif %}
+
+      <div class="market-layout">
+
+        <!-- Market Form -->
+        <div class="market-form-card {% if not market_model_available %}card-disabled{% endif %}">
+          <div class="form-card-header">
+            <div class="form-card-icon icon-gold">
+              <i class="fa-solid fa-store"></i>
+            </div>
+            <div>
+              <h3>Market Parameters</h3>
+              <p>Choose district, market &amp; commodity</p>
+            </div>
+          </div>
+
+          <form id="marketForm" novalidate>
+            <div class="form-grid form-grid-1">
+
+              <div class="form-group">
+                <label class="form-label" for="district">District</label>
+                <div class="input-wrap">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <select id="district" name="district" class="form-input form-select" required
+                          {% if not market_model_available %}disabled{% endif %}>
+                    <option value="">— Select District —</option>
+                    {% for d in districts %}
+                    <option value="{{ d }}">{{ d }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="market">Market</label>
+                <div class="input-wrap">
+                  <i class="fa-solid fa-store"></i>
+                  <select id="market" name="market" class="form-input form-select" required
+                          {% if not market_model_available %}disabled{% endif %}>
+                    <option value="">— Select Market —</option>
+                    {% for m in markets %}
+                    <option value="{{ m }}">{{ m }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="commodity">Commodity</label>
+                <div class="input-wrap">
+                  <i class="fa-solid fa-wheat-awn"></i>
+                  <select id="commodity" name="commodity" class="form-input form-select" required
+                          {% if not market_model_available %}disabled{% endif %}>
+                    <option value="">— Select Commodity —</option>
+                    {% for c in commodities %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid form-grid-2" style="margin-top:0;">
+                <div class="form-group">
+                  <label class="form-label" for="year">Year</label>
+                  <div class="input-wrap">
+                    <i class="fa-solid fa-calendar"></i>
+                    <input type="number" id="year" name="year" class="form-input"
+                           value="{{ current_year }}" min="2000" max="2100"
+                           {% if not market_model_available %}disabled{% endif %} required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="month">Month</label>
+                  <div class="input-wrap">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <select id="month" name="month" class="form-input form-select"
+                            {% if not market_model_available %}disabled{% endif %} required>
+                      {% for mn, ml in [
+                        (1,'January'),(2,'February'),(3,'March'),(4,'April'),
+                        (5,'May'),(6,'June'),(7,'July'),(8,'August'),
+                        (9,'September'),(10,'October'),(11,'November'),(12,'December')
+                      ] %}
+                      <option value="{{ mn }}" {% if mn == current_month %}selected{% endif %}>
+                        {{ ml }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="form-footer" style="margin-top:1.5rem;">
+              <div class="model-pills">
+                <span class="model-pill model-pill-gold">
+                  <i class="fa-solid fa-chart-candlestick"></i> Market Price Model
+                </span>
+              </div>
+              <button type="submit" class="btn btn-gold btn-submit" id="marketBtn"
+                      {% if not market_model_available %}disabled{% endif %}>
+                <span class="btn-text">
+                  <i class="fa-solid fa-magnifying-glass-chart"></i>
+                  Predict Price
+                </span>
+                <span class="btn-loader" hidden>
+                  <i class="fa-solid fa-circle-notch fa-spin"></i>
+                  Predicting…
+                </span>
+              </button>
+            </div>
+
+            <div class="error-banner" id="marketErrors" hidden></div>
+          </form>
+        </div>
+
+        <!-- Market Results -->
+        <div class="market-results-panel" id="marketResultsPanel">
+          <div class="market-placeholder" id="marketPlaceholder">
+            <div class="placeholder-icon">
+              <i class="fa-solid fa-chart-candlestick"></i>
+            </div>
+            <p>Submit the form to see<br />predicted market prices</p>
+          </div>
+
+          <!-- Actual results (hidden until prediction) -->
+          <div class="market-results-inner" id="marketResultsInner" hidden>
+
+            <div class="market-result-header">
+              <h4 id="mrTitle">—</h4>
+              <span class="market-result-date" id="mrDate">—</span>
+            </div>
+
+            <div class="price-cards-row">
+              <div class="price-card price-min">
+                <div class="price-label">Min Price</div>
+                <div class="price-value" id="mrMin">—</div>
+                <div class="price-unit">₹/quintal</div>
+              </div>
+              <div class="price-card price-modal price-card-featured">
+                <div class="price-badge">AI Predicted</div>
+                <div class="price-label">Modal Price</div>
+                <div class="price-value" id="mrModal">—</div>
+                <div class="price-unit">₹/quintal</div>
+              </div>
+              <div class="price-card price-max">
+                <div class="price-label">Max Price</div>
+                <div class="price-value" id="mrMax">—</div>
+                <div class="price-unit">₹/quintal</div>
+              </div>
+            </div>
+
+            <!-- Price range bar -->
+            <div class="price-range-section">
+              <div class="price-range-label">
+                <span id="mrMin2">—</span>
+                <span class="range-centre-label">Price Range</span>
+                <span id="mrMax2">—</span>
+              </div>
+              <div class="price-range-bar">
+                <div class="price-range-fill" id="priceRangeFill"></div>
+                <div class="price-range-modal" id="priceRangeModal"></div>
+              </div>
+            </div>
+
+            <!-- Market Insight -->
+            <div class="market-insight" id="marketInsight"></div>
+
+          </div>
+        </div>
+
+      </div><!-- /market-layout -->
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       WORKFLOW ARCHITECTURE SECTION
+  ══════════════════════════════════════════ -->
+  <section class="section workflow-section" id="workflow-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-tag">
+          <i class="fa-solid fa-diagram-project"></i> System Architecture
+        </div>
+        <h2 class="section-title">Frontend–Backend Workflow</h2>
+        <p class="section-sub">
+          End-to-end data flow from farmer input through ML models
+          to the live advisory dashboard.
+        </p>
+      </div>
+
+      <!-- Workflow Diagram -->
+      <div class="workflow-diagram">
+
+        <!-- Layer 1: Farmer Input -->
+        <div class="wf-layer wf-layer-1">
+          <div class="wf-layer-title">
+            <span class="wf-layer-num">01</span>
+            Farmer Input
+          </div>
+          <div class="wf-nodes wf-nodes-row">
+            <div class="wf-node wf-node-input">
+              <div class="wf-node-icon"><i class="fa-solid fa-user-tie"></i></div>
+              <div class="wf-node-label">State</div>
+            </div>
+            <div class="wf-node wf-node-input">
+              <div class="wf-node-icon"><i class="fa-solid fa-location-dot"></i></div>
+              <div class="wf-node-label">District</div>
+            </div>
+            <div class="wf-node wf-node-input">
+              <div class="wf-node-icon"><i class="fa-solid fa-seedling"></i></div>
+              <div class="wf-node-label">Crop</div>
+            </div>
+            <div class="wf-node wf-node-input">
+              <div class="wf-node-icon"><i class="fa-solid fa-hill"></i></div>
+              <div class="wf-node-label">Soil Type</div>
+            </div>
+            <div class="wf-node wf-node-input">
+              <div class="wf-node-icon"><i class="fa-solid fa-ruler-combined"></i></div>
+              <div class="wf-node-label">N, P, K, pH</div>
+            </div>
+            <div class="wf-node wf-node-input">
+              <div class="wf-node-icon"><i class="fa-solid fa-cloud-sun"></i></div>
+              <div class="wf-node-label">Env. Data</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-arrow wf-arrow-down">
+          <div class="wf-arrow-line"></div>
+          <div class="wf-arrow-label">
+            <code>POST /predict</code>
+            <span>JSON payload → Flask</span>
+          </div>
+          <div class="wf-arrow-head"></div>
+        </div>
+
+        <!-- Layer 2: Frontend -->
+        <div class="wf-layer wf-layer-2">
+          <div class="wf-layer-title">
+            <span class="wf-layer-num">02</span>
+            Frontend (HTML / CSS / JS)
+          </div>
+          <div class="wf-nodes wf-nodes-row">
+            <div class="wf-node wf-node-fe">
+              <div class="wf-node-icon"><i class="fa-brands fa-html5"></i></div>
+              <div class="wf-node-label">index.html</div>
+            </div>
+            <div class="wf-node wf-node-fe">
+              <div class="wf-node-icon"><i class="fa-brands fa-css3-alt"></i></div>
+              <div class="wf-node-label">style.css</div>
+            </div>
+            <div class="wf-node wf-node-fe">
+              <div class="wf-node-icon"><i class="fa-brands fa-js"></i></div>
+              <div class="wf-node-label">script.js</div>
+            </div>
+            <div class="wf-node wf-node-fe">
+              <div class="wf-node-icon"><i class="fa-solid fa-code"></i></div>
+              <div class="wf-node-label">Jinja2 Templates</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-arrow wf-arrow-down">
+          <div class="wf-arrow-line"></div>
+          <div class="wf-arrow-label">
+            <code>fetch('/predict', {method:'POST'})</code>
+            <span>Async AJAX → Flask route</span>
+          </div>
+          <div class="wf-arrow-head"></div>
+        </div>
+
+        <!-- Layer 3: Flask Backend -->
+        <div class="wf-layer wf-layer-3">
+          <div class="wf-layer-title">
+            <span class="wf-layer-num">03</span>
+            Flask Backend (app.py)
+          </div>
+          <div class="wf-nodes wf-nodes-row">
+            <div class="wf-node wf-node-be">
+              <div class="wf-node-icon"><i class="fa-solid fa-route"></i></div>
+              <div class="wf-node-label">GET /</div>
+            </div>
+            <div class="wf-node wf-node-be">
+              <div class="wf-node-icon"><i class="fa-solid fa-bolt"></i></div>
+              <div class="wf-node-label">POST /predict</div>
+            </div>
+            <div class="wf-node wf-node-be">
+              <div class="wf-node-icon"><i class="fa-solid fa-chart-candlestick"></i></div>
+              <div class="wf-node-label">POST /predict/market</div>
+            </div>
+            <div class="wf-node wf-node-be">
+              <div class="wf-node-icon"><i class="fa-solid fa-database"></i></div>
+              <div class="wf-node-label">GET /encoders</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-arrow wf-arrow-down">
+          <div class="wf-arrow-line"></div>
+          <div class="wf-arrow-label">
+            <code>joblib.load('model.pkl')</code>
+            <span>Feature arrays → ML models</span>
+          </div>
+          <div class="wf-arrow-head"></div>
+        </div>
+
+        <!-- Layer 4: ML Models -->
+        <div class="wf-layer wf-layer-4">
+          <div class="wf-layer-title">
+            <span class="wf-layer-num">04</span>
+            ML Models (.pkl)
+          </div>
+          <div class="wf-nodes wf-nodes-wrap">
+            <div class="wf-node wf-node-ml">
+              <div class="wf-node-icon"><i class="fa-solid fa-seedling"></i></div>
+              <div class="wf-node-label">Crop Recommendation</div>
+              <div class="wf-node-sub">RandomForestClassifier<br />N,P,K,Temp,Hum,pH,Rain</div>
+            </div>
+            <div class="wf-node wf-node-ml">
+              <div class="wf-node-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <div class="wf-node-label">Yield Prediction</div>
+              <div class="wf-node-sub">RandomForestRegressor<br />N,P,K,Rain,Temp,Hum</div>
+            </div>
+            <div class="wf-node wf-node-ml">
+              <div class="wf-node-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+              <div class="wf-node-label">Fertilizer Price</div>
+              <div class="wf-node-sub">RandomForestRegressor<br />N,P,K,Rain,Temp</div>
+            </div>
+            <div class="wf-node wf-node-ml">
+              <div class="wf-node-icon"><i class="fa-solid fa-store"></i></div>
+              <div class="wf-node-label">Market Price</div>
+              <div class="wf-node-sub">RandomForestRegressor<br />District,Market,Commodity,Y,M</div>
+            </div>
+            <div class="wf-node wf-node-enc">
+              <div class="wf-node-icon"><i class="fa-solid fa-key"></i></div>
+              <div class="wf-node-label">Encoders</div>
+              <div class="wf-node-sub">district / market / commodity<br />LabelEncoder ×3</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-arrow wf-arrow-down">
+          <div class="wf-arrow-line"></div>
+          <div class="wf-arrow-label">
+            <code>return jsonify(predictions=…)</code>
+            <span>JSON response → Frontend JS</span>
+          </div>
+          <div class="wf-arrow-head"></div>
+        </div>
+
+        <!-- Layer 5: Dashboard Output -->
+        <div class="wf-layer wf-layer-5">
+          <div class="wf-layer-title">
+            <span class="wf-layer-num">05</span>
+            Dashboard Output
+          </div>
+          <div class="wf-nodes wf-nodes-wrap">
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-seedling"></i></div>
+              <div class="wf-node-label">Recommended Crop</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <div class="wf-node-label">Predicted Yield</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+              <div class="wf-node-label">Fertilizer Cost</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-store"></i></div>
+              <div class="wf-node-label">Market Price</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-hill"></i></div>
+              <div class="wf-node-label">Soil Health</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-faucet-drip"></i></div>
+              <div class="wf-node-label">Irrigation Advice</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-bug"></i></div>
+              <div class="wf-node-label">Pest Alerts</div>
+            </div>
+            <div class="wf-node wf-node-out">
+              <div class="wf-node-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
+              <div class="wf-node-label">Weather Insight</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /workflow-diagram -->
+
+      <!-- Data Flow Legend -->
+      <div class="wf-legend">
+        <div class="legend-item">
+          <div class="legend-dot legend-input"></div>
+          <span>Farmer Input Fields</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-fe"></div>
+          <span>Frontend Layer</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-be"></div>
+          <span>Flask Backend</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-ml"></div>
+          <span>ML Models</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-out"></div>
+          <span>Dashboard Output</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot legend-enc"></div>
+          <span>Encoders</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="brand-icon brand-icon-sm">
+          <i class="fa-solid fa-seedling"></i>
+        </div>
+        <span class="brand-text">Krishi<em>Mind</em></span>
+      </div>
+      <p class="footer-tagline">AI-Powered Precision Agriculture · Flask + ML Backend</p>
+      <p class="footer-copy">
+        Predictions are AI-generated estimates for advisory purposes only.
+        Consult local agricultural experts for critical decisions.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Main Script -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
