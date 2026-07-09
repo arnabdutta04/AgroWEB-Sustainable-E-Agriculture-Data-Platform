@@ -1819,9 +1819,13 @@ def predict():
         return jsonify(success=False, errors=errors), 400
 
     # 1. Crop recommendation  [N, P, K, temperature, humidity, ph, rainfall]
-    crop_feat  = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-    crop_proba = crop_model.predict_proba(crop_feat)[0]
+    CROP_RAINFALL_MIN = 20.0
+    CROP_RAINFALL_MAX = 300.0
+    crop_rainfall_input = min(max(rainfall / 4.0, CROP_RAINFALL_MIN), CROP_RAINFALL_MAX)
 
+    crop_feat  = np.array([[N, P, K, temperature, humidity, ph, crop_rainfall_input]])
+    crop_proba = crop_model.predict_proba(crop_feat)[0]
+    
     crop_scores = {}
     selected_crop_score = 0        # ← moved BEFORE the loop
 
