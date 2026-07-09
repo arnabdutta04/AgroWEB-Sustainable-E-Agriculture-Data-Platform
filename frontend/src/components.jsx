@@ -997,13 +997,25 @@ export function ForecastChart({ dataPoints }) {
   const temps = dataPoints?.temps || [28, 29, 27, 28, 30, 29, 28];
   const rain  = dataPoints?.rain  || [15, 22, 45, 10, 5, 12, 18];
 
+  // Compute fixed axis bounds with generous padding so small-range weeks
+  // (cold hill districts) don't get visually exploded by tight auto-scaling
+  const tempMin = Math.min(...temps);
+  const tempMax = Math.max(...temps);
+  const tempPad = Math.max(3, (tempMax - tempMin) * 0.4);
+
+  const rainMin = Math.min(...rain);
+  const rainMax = Math.max(...rain);
+  const rainPad = Math.max(5, (rainMax - rainMin) * 0.4);
+
   const data = {
     labels: days,
     datasets: [
       { label: 'Temperature (°C)', data: temps, borderColor: '#D95B26',
-        backgroundColor: 'rgba(217,91,38,0.1)', yAxisID: 'y', tension: 0.4, fill: true },
+        backgroundColor: 'rgba(217,91,38,0.1)', yAxisID: 'y', tension: 0.15, fill: true,
+        pointRadius: 4, pointHoverRadius: 6 },
       { label: 'Rainfall (mm)', data: rain, borderColor: '#167083',
-        backgroundColor: 'rgba(22,112,131,0.1)', yAxisID: 'y1', tension: 0.4, fill: true },
+        backgroundColor: 'rgba(22,112,131,0.1)', yAxisID: 'y1', tension: 0.15, fill: true,
+        pointRadius: 4, pointHoverRadius: 6 },
     ],
   };
 
@@ -1013,8 +1025,10 @@ export function ForecastChart({ dataPoints }) {
     scales: {
       x: { grid: { color: 'rgba(42,58,78,0.4)' }, ticks: { color: '#94a3b8', font: { family: 'Inter' } } },
       y: { type: 'linear', display: true, position: 'left',
+           min: Math.floor(tempMin - tempPad), max: Math.ceil(tempMax + tempPad),
            grid: { color: 'rgba(42,58,78,0.4)' }, ticks: { color: '#D95B26', font: { family: 'Inter' } } },
       y1: { type: 'linear', display: true, position: 'right',
+            min: Math.floor(rainMin - rainPad), max: Math.ceil(rainMax + rainPad),
             grid: { drawOnChartArea: false }, ticks: { color: '#167083', font: { family: 'Inter' } } },
     },
   };

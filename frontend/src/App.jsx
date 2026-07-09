@@ -968,31 +968,50 @@ async function appGeocodeDistrict(districtName, stateName, signal) {
   return null;
 }
 
-function districtSoilParams(lat, lon, cropDefaults) {
-  // Use sub-degree fractional part as a repeatable per-district seed
-  // that still varies smoothly across geography
-  const latFrac = ((lat * 100) % 100 + 100) % 100;   // 0–100
-  const lonFrac = ((lon * 100) % 100 + 100) % 100;   // 0–100
-  const combined = latFrac * 0.6 + lonFrac * 0.4;     // 0–100
- 
-  // N: Indo-Gangetic plain (lat 22–30) has higher N from alluvial deposits
+function districtSoilParams(lat, lon, elevation = 0) {
+  const latFrac = ((lat * 100) % 100 + 100) % 100;
+  const lonFrac = ((lon * 100) % 100 + 100) % 100;
+  const combined = latFrac * 0.6 + lonFrac * 0.4;
+
+  // Hill/mountain regions get a distinct low-N, low-K profile
+  // instead of the same plains formula
+  if (elevation > 1000) {
+    return {
+      N: Math.max(10, Math.min(140, 25 + (combined * 0.5))),
+      P: Math.max(5,  Math.min(150, 15 + (combined * 0.4))),
+      K: Math.max(5,  Math.min(210, 20 + (combined * 0.45))),
+    };
+  }
+
   const latNBonus = Math.max(-20, Math.min(20, (lat - 20) * 1.5));
-  const nVar = Math.round(combined * 0.4 - 20 + latNBonus);
- 
-  // P: higher longitude (east coast) → more rainfall leaching → lower P
+  const nVar = Math.round(combined * 0.9 - 20 + latNBonus);
+
   const lonPPenalty = Math.max(-15, Math.min(15, (lon - 78) * 0.8));
-  const pVar = Math.round(combined * 0.3 - 15 + lonPPenalty);
- 
-  // K: alluvial floodplains of Ganga-Brahmaputra
+  const pVar = Math.round(combined * 1.1 - 15 + lonPPenalty);
+
   const isAlluvial = (lat > 20 && lat < 28 && lon > 75 && lon < 92) ? 10 : 0;
-  const kVar = Math.round(combined * 0.25 - 12 + isAlluvial);
- 
+  const kVar = Math.round(combined * 1.6 - 12 + isAlluvial);
+
   return {
-    N: Math.max(10, Math.min(200, (cropDefaults.N || 80) + nVar)),
-    P: Math.max(5,  Math.min(150, (cropDefaults.P || 40) + pVar)),
-    K: Math.max(5,  Math.min(150, (cropDefaults.K || 40) + kVar)),
+    N: Math.max(10, Math.min(140, 30 + nVar)),
+    P: Math.max(5,  Math.min(150, 25 + pVar)),
+    K: Math.max(5,  Math.min(210, 25 + kVar)),
   };
 }
+
+const REGION_SOIL_PH = {
+  'darjeeling': 5.2, 'kalimpong': 5.3, 'kohima': 5.4, 'shimla': 5.8,
+  'shillong': 5.5, 'aizawl': 5.3, 'gangtok': 5.4, 'itanagar': 5.3,
+};
+
+function getRegionPH(districtName, elevation = 0) {
+  const key = (districtName || '').toLowerCase().trim();
+  if (REGION_SOIL_PH[key]) return REGION_SOIL_PH[key];
+  if (elevation > 1500) return 5.6;   // generic hill/mountain acidic soil
+  if (elevation > 800)  return 6.0;   // mid-elevation
+  return 6.5;                          // plains neutral default
+}
+
 function loadState(key, fallback) {
   try {
     const s = localStorage.getItem(key);
@@ -1116,7 +1135,9 @@ export function AppProvider({ children }) {
         const tempCorr = -(elevation * LAPSE);
         const stateBaseline = STATE_RAIN[currentState] ?? 1000;
         const weeklyAvg = fd.precipitation.reduce((s, v) => s + v, 0) / fd.precipitation.length;
-        let blended = Math.round(stateBaseline * 0.7 + Math.round(weeklyAvg * 52) * 0.3);
+        let blended = elevation > 1500
+          ? Math.round(weeklyAvg * 52 * 1.3)
+          : Math.round(stateBaseline * 0.5 + Math.round(weeklyAvg * 52) * 0.5);
  
         if (elevation > 500 && elevation <= 2500) {
           blended = Math.round(blended * (1.0 + ((elevation - 500) / 2000) * 0.8));
@@ -1153,11 +1174,11 @@ export function AppProvider({ children }) {
         isPredicting.current = true;
  
         const crop = selectedCropRef.current || 'rice';
-        const defaults = CROP_DEFAULTS[crop] || CROP_DEFAULTS.rice;
- 
-        // Use real lat/lon for soil variation — not district name hash
-        const { N, P, K } = districtSoilParams(latitude, longitude, defaults);
- 
+
+        // Use real lat/lon + elevation for soil variation — not crop-tied defaults
+        const { N, P, K } = districtSoilParams(latitude, longitude, elevation);
+        const regionPh = getRegionPH(selectedDistrict, elevation);
+
         setLoading(true);
         setError(null);
         try {
@@ -1167,7 +1188,7 @@ export function AppProvider({ children }) {
             K,
             temperature: updatedWeather.temperature,
             humidity: updatedWeather.humidity,
-            ph: defaults.ph,
+            ph: regionPh,
             rainfall: updatedWeather.rainfall,
             district: selectedDistrict.toLowerCase(),
             fieldSize,
@@ -1209,64 +1230,19 @@ export function AppProvider({ children }) {
   const cropDefaults = CROP_DEFAULTS[selectedCrop] || CROP_DEFAULTS.rice;
   const cropChangeRef = React.useRef(false);
   const isPredicting = React.useRef(false);
-useEffect(() => {
-    if (!selectedDistrict || !predictionResult) return;
- 
-    const timer = setTimeout(async () => {
-      if (isPredicting.current) return;
-      isPredicting.current = true;
-      setError(null);
- 
-      const crop = selectedCropRef.current || 'rice';
-      const defaults = CROP_DEFAULTS[crop] || CROP_DEFAULTS.rice;
- 
-      // Re-geocode to get real lat/lon for soil params
-      // (cached by browser — fast second call)
-      let soilN = defaults.N, soilP = defaults.P, soilK = defaults.K;
-      try {
-        const currentState = selectedStateRef.current;
-        const loc = await appGeocodeDistrict(selectedDistrict, currentState, new AbortController().signal);
-        if (loc) {
-          const sp = districtSoilParams(loc.latitude, loc.longitude, defaults);
-          soilN = sp.N; soilP = sp.P; soilK = sp.K;
-        }
-      } catch (_) {
-        // fallback to crop defaults if geocode fails
-      }
- 
-      try {
-        const res = await predictCrop({
-          N: soilN, P: soilP, K: soilK,
-          temperature: weatherValues.temperature,
-          humidity: weatherValues.humidity,
-          ph: defaults.ph,
-          rainfall: weatherValues.rainfall,
-          district: selectedDistrict.toLowerCase(),
-          fieldSize,
-          selectedCrop: crop,
-        });
-        setPredictionResult(res);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-        isPredicting.current = false;
-      }
-    }, 300);
- 
-    return () => clearTimeout(timer);
-  }, [selectedCrop]);
+
   const runPrediction = useCallback(async (overrides = {}) => {
     if (isPredicting.current) return;
     isPredicting.current = true;
     setLoading(true);
     setError(null);
- 
+
     const crop = selectedCrop || 'rice';
     const defaults = CROP_DEFAULTS[crop] || CROP_DEFAULTS.rice;
- 
+
     // Derive soil params from real geocoordinates when possible
     let soilN = defaults.N, soilP = defaults.P, soilK = defaults.K;
+    let soilPh = getRegionPH(selectedDistrict, 0);
     try {
       const loc = await appGeocodeDistrict(
         selectedDistrict || 'East Godavari',
@@ -1274,19 +1250,21 @@ useEffect(() => {
         new AbortController().signal
       );
       if (loc) {
-        const sp = districtSoilParams(loc.latitude, loc.longitude, defaults);
+        const elev = weatherValues?.elevationMeters ?? 0;
+        const sp = districtSoilParams(loc.latitude, loc.longitude, elev);
         soilN = sp.N; soilP = sp.P; soilK = sp.K;
+        soilPh = getRegionPH(selectedDistrict, elev);
       }
     } catch (_) {
       // fallback to defaults
     }
- 
+
     try {
       const payload = {
         N: soilN, P: soilP, K: soilK,
         temperature: weatherValues.temperature,
         humidity: weatherValues.humidity,
-        ph: defaults.ph,
+        ph: soilPh,
         rainfall: weatherValues.rainfall,
         district: (selectedDistrict || 'East Godavari').toLowerCase(),
         fieldSize,
@@ -1390,6 +1368,11 @@ function FarmOverview() {
   const yieldEst = hasResult ? predictionResult.predictions.yield_prediction : null;
   const fertPrice = hasResult ? predictionResult.predictions.fertilizer_price_prediction : null;
 
+  const HILL_DISTRICTS = ['darjeeling', 'kalimpong', 'kohima', 'shimla', 'shillong', 'aizawl', 'gangtok', 'itanagar'];
+  const UNSUITABLE_FOR_HILLS = ['rice', 'watermelon', 'muskmelon', 'cotton'];
+  const showHillWarning = hasResult
+    && HILL_DISTRICTS.includes((selectedDistrict || '').toLowerCase())
+    && UNSUITABLE_FOR_HILLS.includes((rec.recommended_crop || '').toLowerCase());
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-gradient-to-r from-green-600 to-emerald-500 border border-border p-6 md:p-8 rounded-3xl relative overflow-hidden flex flex-col gap-2">
@@ -1432,6 +1415,12 @@ function FarmOverview() {
         </div>
       </div>
 
+      {showHillWarning && (
+        <div className="bg-warning/10 border border-warning/30 text-warning text-xs p-4 rounded-xl font-semibold flex items-center gap-2">
+          <FaExclamationTriangle size={14} />
+          This recommendation may not reflect hill/mountain terrain accurately — verify with your local agricultural office before acting on it.
+        </div>
+      )}
       {hasResult && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 animate-fade-in">
           <div className="glass-card p-6 flex flex-col gap-6">
